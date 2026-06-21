@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes eqbar { 0%,100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+  @keyframes heartBurst {
+    0%   { opacity: 0; transform: translate(-50%, 0) scale(0.3) rotate(0deg); }
+    18%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), var(--dy)) scale(1) rotate(var(--rot)); }
+  }
+</style>
+</helmet>
+<div style="min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; background: {{ wrapperBg }}; font-family: 'Figtree', sans-serif; padding: {{ wrapperPad }};">
+
+  <div ref="{{ cardRef }}" style="width: {{ cardWidth }}; max-width: {{ cardMaxWidth }}; min-height: {{ cardMinHeight }}; height: {{ cardHeight }}; display: {{ cardDisplay }}; flex-direction: column; justify-content: {{ cardJustify }}; overflow: {{ cardOverflow }}; box-sizing: border-box; border-radius: {{ cardRadius }}; background: linear-gradient(180deg, #232323 0%, #121212 60%); box-shadow: 0 40px 90px -30px rgba(0,0,0,0.8); padding: 18px 18px 20px; color: #fff; user-select: none; transition: width 0.45s cubic-bezier(0.22,1,0.36,1);">
+
+    <!-- header -->
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 14px;">
+      <svg onClick="{{ onCollapse }}" style="cursor: pointer; transform: {{ chevronRotate }}; transition: transform 0.3s ease;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      <div style="text-align: center; line-height: 1.3;">
+        <div style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #b3b3b3; font-weight: 700;">Playing from</div>
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">Father's Day 2026</div>
+      </div>
+      <div onClick="{{ onMenu }}" style="position: relative; cursor: pointer;">
+        <div style="display: flex; gap: 3px; padding: 4px 0;">
+          <span style="width: 4px; height: 4px; border-radius: 50%; background: #fff;"></span>
+          <span style="width: 4px; height: 4px; border-radius: 50%; background: #fff;"></span>
+          <span style="width: 4px; height: 4px; border-radius: 50%; background: #fff;"></span>
+        </div>
+        <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; right: 0; top: 26px; z-index: 60; background: #282828; border-radius: 8px; box-shadow: 0 12px 34px rgba(0,0,0,0.55); padding: 5px; min-width: 184px;">
+            <a href="https://open.spotify.com/playlist/4nemEKPngcjL2399cAaCtN?si=E5l6PR2iSsWNFhGZ2T-J0w&amp;pt=0d6899c8906cdd04eb95318d2e894865" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 5px; color: #fff; text-decoration: none; font-size: 14px; font-weight: 600;" style-hover="background: #3e3e3e;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="#1ed760"><path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h10v2H3z"></path><path d="M16 16l5 3-5 3z"></path></svg>
+              View playlist
+            </a>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- STAGE: album cover <-> lyrics -->
+    <sc-if value="{{ notCollapsed }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: {{ stagePad }}; transition: padding 0.4s ease;">
+    <div ref="{{ stageRef }}" style="position: relative; width: 100%; height: {{ stageHeight }}; max-height: {{ stageMaxH }}; aspect-ratio: {{ stageAspect }}; border-radius: 10px; overflow: hidden;">
+
+      <!-- album cover -->
+      <div style="position: absolute; inset: 0; opacity: {{ coverOpacity }}; transition: opacity 0.6s ease; pointer-events: none; background: linear-gradient(145deg, #cf7b43 0%, #a8542b 48%, #6f3417 100%); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: 0; opacity: 0.5; background-image: radial-gradient(rgba(0,0,0,0.18) 1px, transparent 1px); background-size: 14px 14px;"></div>
+        <div style="width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #f7dca6, #e3a857 72%); box-shadow: 0 0 50px rgba(247,220,166,0.45);"></div>
+        <div style="margin-top: 28px; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,243,228,0.85); font-weight: 700; text-align: center; line-height: 1.5;">Happy Fat her's Day</div>
+      </div>
+
+      <!-- lyrics view -->
+      <div style="position: absolute; inset: 0; opacity: {{ lyricsOpacity }}; transition: opacity 0.6s ease; pointer-events: none; background: linear-gradient(165deg, #b85c38 0%, #8f4321 100%); overflow: hidden;">
+        <div style="position: absolute; left: 0; right: 0; padding: 0 30px; transform: {{ listTransform }}; transition: transform 0.6s cubic-bezier(0.22,1,0.36,1);">
+          <sc-for list="{{ lines }}" as="ln" hint-placeholder-count="8">
+            <div onClick="{{ ln.onSeek }}" style="{{ ln.style }}">{{ ln.text }}</div>
+          </sc-for>
+        </div>
+        <div style="position: absolute; left: 14px; top: 12px; display: flex; gap: 3px; align-items: flex-end; height: 16px; opacity: {{ eqOpacity }};">
+          <span style="width: 3px; height: 16px; background: #fff; border-radius: 2px; transform-origin: bottom; animation: eqbar 0.9s ease-in-out infinite;"></span>
+          <span style="width: 3px; height: 16px; background: #fff; border-radius: 2px; transform-origin: bottom; animation: eqbar 0.9s ease-in-out 0.3s infinite;"></span>
+          <span style="width: 3px; height: 16px; background: #fff; border-radius: 2px; transform-origin: bottom; animation: eqbar 0.9s ease-in-out 0.15s infinite;"></span>
+        </div>
+      </div>
+    </div>
+    </div>
+    </sc-if>
+
+    <!-- meta row -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding: {{ metaPad }};">
+      <div style="min-width: 0;">
+        <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.01em; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Happy Father's Day</div>
+        <div style="font-size: 14px; color: #b3b3b3; font-weight: 500; margin-top: 2px;">Jackson</div>
+      </div>
+      <div onClick="{{ onLike }}" style="cursor: pointer; flex: none; margin-left: 14px; position: relative;">
+        <div style="position: absolute; left: 50%; top: 0; width: 0; height: 0; pointer-events: none;">{{ heartBurst }}</div>
+        <sc-if value="{{ liked }}" hint-placeholder-val="{{ false }}">
+          <svg width="26" height="26" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1ed760"></circle><path d="M7 12.5l3 3 6.5-7" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </sc-if>
+        <sc-if value="{{ notLiked }}" hint-placeholder-val="{{ true }}">
+          <svg width="26" height="26" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="none" stroke="#b3b3b3" stroke-width="1.8"></circle><path d="M12 7.5v9M7.5 12h9" stroke="#b3b3b3" stroke-width="1.8" stroke-linecap="round"></path></svg>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- progress -->
+    <div style="margin-top: 18px; padding: {{ progressPad }};">
+      <div ref="{{ trackRef }}" onMouseDown="{{ onScrubStart }}" onTouchStart="{{ onScrubStart }}" style="height: 16px; display: flex; align-items: center; position: relative; cursor: pointer; touch-action: none;">
+        <div style="height: 4px; width: 100%; border-radius: 2px; background: #4d4d4d; position: relative;">
+          <div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ progressPct }}; background: {{ trackFill }}; border-radius: 2px;"></div>
+          <div style="position: absolute; top: 50%; left: {{ progressPct }}; width: 13px; height: 13px; border-radius: 50%; background: #fff; transform: translate(-50%, -50%) scale({{ knobScale }}); opacity: {{ knobOpacity }}; box-shadow: 0 1px 4px rgba(0,0,0,0.4); transition: transform 0.12s ease;"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 7px; font-size: 11px; color: #b3b3b3; font-weight: 500;">
+        <span>{{ curTime }}</span>
+        <span>{{ durTime }}</span>
+      </div>
+    </div>
+
+    <!-- controls -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding: {{ controlsPad }}; transition: padding 0.4s ease;">
+      <svg onClick="{{ onShuffle }}" style="cursor: pointer;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ shuffleColor }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h4v4M4 20l16-16M16 20h4v-4M14.5 14.5L20 20M4 4l5 5"></path></svg>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M7 6h2v12H7zM20 6v12l-9-6z"></path></svg>
+      <div onClick="{{ onPlay }}" style="cursor: pointer; width: 64px; height: 64px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.5);">
+        <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#000"><path d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z"></path></svg>
+        </sc-if>
+        <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"></path></svg>
+        </sc-if>
+      </div>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M15 6h2v12h-2zM4 6l9 6-9 6z"></path></svg>
+      <svg onClick="{{ onRepeat }}" style="cursor: pointer;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ repeatColor }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+    </div>
+
+    <!-- bottom bar -->
+    <sc-if value="{{ notCollapsed }}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 22px; padding: {{ bottomPad }};">
+      <div onClick="{{ onExpand }}" style="cursor: pointer; display: flex; opacity: {{ expandBtnOpacity }}; pointer-events: {{ expandBtnEvents }};">
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1ed760" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"></path></svg>
+        </sc-if>
+        <sc-if value="{{ notExpanded }}" hint-placeholder-val="{{ true }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b3b3b3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg>
+        </sc-if>
+      </div>
+      <div onClick="{{ onLyrics }}" style="cursor: pointer; display: flex; align-items: center; gap: 7px; background: {{ lyricsPillBg }}; color: {{ lyricsPillColor }}; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; padding: 7px 16px; border-radius: 20px; transition: all 0.3s ease;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v2H4zM4 11h16v2H4zM4 17h10v2H4z"></path></svg>
+        Lyrics
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b3b3b3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><path d="M12 3v13M8 7l4-4 4 4"></path></svg>
+    </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ syncMode }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 26px 20px 30px; background: linear-gradient(180deg, rgba(18,18,18,0), #000 55%); font-family: 'Figtree', sans-serif;">
+      <div style="color: #b3b3b3; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-align: center;">Tap right as each line begins · {{ syncProgress }}</div>
+      <div onClick="{{ onTapSync }}" style="cursor: pointer; width: 220px; height: 66px; border-radius: 33px; background: #1ed760; color: #000; font-size: 19px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 32px -8px rgba(30,215,96,0.6); user-select: none;">Tap</div>
+      <div onClick="{{ onCancelSync }}" style="cursor: pointer; color: #b3b3b3; font-size: 13px; font-weight: 600;">Cancel</div>
+    </div>
+  </sc-if>
+</div>
+
+<template id="__bundler_thumbnail" data-bg-color="#121212">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#121212"></rect>
+    <circle cx="600" cy="400" r="150" fill="#1ed760"></circle>
+    <path d="M555 320 L555 480 L685 400 Z" fill="#000"></path>
+  </svg>
+</template></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 480, &quot;height&quot;: 860}}">
+class Component extends DCLogic {
+  state = { playing: false, elapsed: 0, liked: false, lyricsOpen: false, burstId: 0, shuffleOn: false, repeatOn: false, collapsed: false, expanded: false, menuOpen: false, dur: 10800, syncMode: false, syncIdx: 0 };
+
+  lines = [
+    "Hi Dad,",
+    "I love you so much.",
+    "You're the best dad ever.",
+    "I loved when you laid next to me",
+    "for almost two hours",
+    "when I couldn't fall asleep.",
+    "I hope you have a",
+    "great Father's Day.",
+    "Love, Jackson",
+  ];
+  defaultTimes = [0.3, 0.78, 1.99, 3.2, 5.14, 6.35, 7.8, 9.01, 9.98];
+
+  trackRef = React.createRef();
+  cardRef = React.createRef();
+  stageRef = React.createRef();
+
+  get total() { return this.state.dur || 10800; }
+
+  loadTimes() {
+    try {
+      const raw = localStorage.getItem("fdc_times");
+      if (raw) { const a = JSON.parse(raw); if (Array.isArray(a) && a.length === this.lines.length) return a; }
+    } catch (e) {}
+    return this.defaultTimes.slice();
+  }
+  saveTimes(a) { try { localStorage.setItem("fdc_times", JSON.stringify(a)); } catch (e) {} }
+
+  getAudio() {
+    if (!this.audio) {
+      const a = new Audio();
+      a.preload = "auto";
+      this.audio = a;
+      a.addEventListener("error", () => { console.warn("audio error", a.error && a.error.code); });
+      a.addEventListener("loadedmetadata", () => {
+        if (a.duration && isFinite(a.duration)) this.setState({ dur: a.duration * 1000 });
+      });
+      a.addEventListener("ended", () => { this.stopTick(); this.setState({ playing: false }); });
+      // Server mislabels song.wav's content-type, so load the bytes and re-wrap
+      // them in a correctly-typed Blob the browser will actually decode.
+      fetch("song.wav")
+        .then((r) => r.arrayBuffer())
+        .then((b) => {
+          a.src = URL.createObjectURL(new Blob([b], { type: "audio/wav" }));
+          if (this.pendingPlay) { this.pendingPlay = false; a.play().catch(() => {}); this.startTick(); }
+        })
+        .catch(() => { a.src = "song.wav"; });
+    }
+    return this.audio;
+  }
+
+  componentDidMount() {
+    this.times = this.loadTimes();
+    this.onResize = () => this.forceUpdate();
+    window.addEventListener("resize", this.onResize);
+    this.getAudio();
+    this.forceUpdate();
+  }
+
+  componentWillUnmount() {
+    this.stopTick();
+    if (this.audio) this.audio.pause();
+    window.removeEventListener("resize", this.onResize);
+  }
+
+  startTick() {
+    this.stopTick();
+    const loop = () => {
+      const a = this.audio;
+      if (a && !this.dragging) this.setState({ elapsed: a.currentTime * 1000 });
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+  stopTick() {
+    if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
+  }
+
+  onMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
+  onExpand = () => this.setState(s => ({ expanded: !s.expanded }));
+  onCollapse = () => this.setState(s => ({ collapsed: !s.collapsed }));
+
+  clientXOf(e) {
+    if (e.touches && e.touches[0]) return e.touches[0].clientX;
+    if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].clientX;
+    return e.clientX;
+  }
+  seekFromX(x) {
+    const el = this.trackRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    let ratio = (x - rect.left) / rect.width;
+    ratio = Math.max(0, Math.min(1, ratio));
+    const ms = ratio * this.total;
+    if (this.audio) this.audio.currentTime = ms / 1000;
+    this.setState({ elapsed: ms });
+  }
+
+  onScrubStart = (e) => {
+    if (e.cancelable) e.preventDefault();
+    this.dragging = true;
+    this.seekFromX(this.clientXOf(e));
+    this._move = (ev) => {
+      if (!this.dragging) return;
+      if (ev.cancelable) ev.preventDefault();
+      this.seekFromX(this.clientXOf(ev));
+    };
+    this._end = () => {
+      this.dragging = false;
+      window.removeEventListener("mousemove", this._move);
+      window.removeEventListener("touchmove", this._move);
+      window.removeEventListener("mouseup", this._end);
+      window.removeEventListener("touchend", this._end);
+      this.forceUpdate();
+    };
+    window.addEventListener("mousemove", this._move);
+    window.addEventListener("touchmove", this._move, { passive: false });
+    window.addEventListener("mouseup", this._end);
+    window.addEventListener("touchend", this._end);
+    this.forceUpdate();
+  };
+
+  onPlay = () => {
+    const a = this.getAudio();
+    if (!a) return;
+    if (this.state.playing) {
+      a.pause();
+      this.stopTick();
+      this.setState({ playing: false });
+    } else {
+      if (!a.src) { this.pendingPlay = true; this.setState({ playing: true }); return; }
+      if (a.currentTime >= (a.duration || 0) - 0.05) a.currentTime = 0;
+      a.play().catch(() => {});
+      this.startTick();
+      this.setState({ playing: true });
+    }
+  };
+
+  onStartSync = () => {
+    const a = this.getAudio();
+    if (!a) return;
+    this.syncCap = [];
+    a.currentTime = 0;
+    a.play().catch(() => {});
+    this.setState({ menuOpen: false, syncMode: true, syncIdx: 0, lyricsOpen: true, playing: true, elapsed: 0 });
+  };
+  onTapSync = () => {
+    const a = this.audio;
+    if (!a) return;
+    const i = this.state.syncIdx;
+    this.syncCap[i] = i === 0 ? 0 : a.currentTime;
+    const next = i + 1;
+    if (next >= this.lines.length) {
+      this.times = this.syncCap.slice();
+      this.saveTimes(this.times);
+      a.pause();
+      this.setState({ syncMode: false, playing: false });
+    } else {
+      this.setState({ syncIdx: next });
+    }
+  };
+  onCancelSync = () => {
+    if (this.audio) this.audio.pause();
+    this.setState({ syncMode: false, playing: false });
+  };
+
+  onLike = () => this.setState(s => ({ liked: !s.liked, burstId: s.liked ? s.burstId : s.burstId + 1 }));
+  onLyrics = () => this.setState(s => ({ lyricsOpen: !s.lyricsOpen }));
+  onShuffle = () => this.setState(s => ({ shuffleOn: !s.shuffleOn }));
+  onRepeat = () => this.setState(s => ({ repeatOn: !s.repeatOn }));
+
+  fmt(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ":" + (s < 10 ? "0" + s : s);
+  }
+
+  renderVals() {
+    const { playing, elapsed, liked, lyricsOpen, collapsed } = this.state;
+    const isMobile = (typeof window !== "undefined") && window.innerWidth <= 700;
+    const expanded = this.state.expanded;
+    const wide = expanded && !isMobile;  // desktop spread content (insets + 16:9)
+    const full = expanded;               // fills the whole screen on any device
+    const N = this.lines.length;
+    const times = this.times || this.defaultTimes;
+    const sec = elapsed / 1000;
+    let active = 0;
+    for (let i = 0; i < N; i++) { if (sec >= times[i] - 0.001) active = i; else break; }
+    if (this.state.syncMode) active = Math.min(this.state.syncIdx, N - 1);
+    const revealed = lyricsOpen;
+    const progress = Math.min(elapsed / this.total, 1);
+
+    const lineH = wide ? 62 : 54;
+    const stageH = (this.stageRef.current && this.stageRef.current.offsetHeight) || 340;
+    const center = stageH / 2 - lineH / 2;
+
+    const lines = this.lines.map((text, i) => {
+      const isActive = revealed && i === active;
+      const isPast = revealed && i < active;
+      const color = isActive ? "#fff6ec" : isPast ? "rgba(255,243,228,0.62)" : "rgba(255,243,228,0.38)";
+      const style = [
+        "height:" + lineH + "px",
+        "display:flex",
+        "align-items:center",
+        "font-size:" + (wide ? (isActive ? 34 : 29) : (isActive ? 25 : 22)) + "px",
+        "font-weight:" + (isActive ? 800 : 700),
+        "letter-spacing:-0.01em",
+        "line-height:1.15",
+        "color:" + color,
+        "transform:" + (isActive ? "scale(1.02)" : "scale(1)"),
+        "transform-origin:left center",
+        "cursor:" + (revealed ? "pointer" : "default"),
+        "pointer-events:" + (revealed ? "auto" : "none"),
+        "transition:color .4s ease, transform .4s ease, font-size .3s ease",
+      ].join(";");
+      return { text, style, onSeek: () => { const t = (this.times || this.defaultTimes)[i] || 0; if (this.audio) this.audio.currentTime = t; this.setState({ elapsed: t * 1000 }); } };
+    });
+
+    const burstId = this.state.burstId;
+    let heartBurst = null;
+    if (burstId > 0) {
+      const specs = [
+        { dx: -34, dy: -78, s: 15, rot: -28, d: 0 },
+        { dx: -14, dy: -96, s: 20, rot: -10, d: 0.06 },
+        { dx: 8,   dy: -104, s: 17, rot: 12,  d: 0.02 },
+        { dx: 30,  dy: -84, s: 14, rot: 26,  d: 0.1 },
+        { dx: -2,  dy: -70, s: 12, rot: 4,   d: 0.14 },
+      ];
+      heartBurst = React.createElement(
+        "div",
+        { key: burstId, style: { position: "absolute", left: 0, top: 0 } },
+        specs.map((p, i) =>
+          React.createElement(
+            "span",
+            {
+              key: i,
+              style: {
+                position: "absolute",
+                left: 0,
+                top: 0,
+                fontSize: p.s + "px",
+                color: "#1ed760",
+                "--dx": p.dx + "px",
+                "--dy": p.dy + "px",
+                "--rot": p.rot + "deg",
+                animation: "heartBurst 1s ease-out " + p.d + "s forwards",
+              },
+            },
+            "♥"
+          )
+        )
+      );
+    }
+
+    return {
+      heartBurst,
+      trackRef: this.trackRef,
+      onScrubStart: this.onScrubStart,
+      onShuffle: this.onShuffle,
+      onRepeat: this.onRepeat,
+      onMenu: this.onMenu,
+      menuOpen: this.state.menuOpen,
+      onStartSync: this.onStartSync,
+      onTapSync: this.onTapSync,
+      onCancelSync: this.onCancelSync,
+      syncMode: this.state.syncMode,
+      syncProgress: Math.min(this.state.syncIdx + 1, N) + " / " + N,
+      onExpand: this.onExpand,
+      onCollapse: this.onCollapse,
+      expanded,
+      notExpanded: !expanded,
+      notCollapsed: !collapsed,
+      collapsed,
+      chevronRotate: collapsed ? "rotate(180deg)" : "rotate(0deg)",
+      isMobile,
+      notMobile: !isMobile,
+      wrapperBg: full ? "#121212" : "linear-gradient(180deg, #3a241a 0%, #1a120d 42%, #000 100%)",
+      wrapperPad: full ? "0" : "32px 20px",
+      expandBtnOpacity: 1,
+      expandBtnEvents: "auto",
+      cardWidth: full ? "100vw" : "420px",
+      cardMaxWidth: full ? "100vw" : "94vw",
+      cardMinHeight: full ? "100dvh" : "0",
+      cardHeight: full ? "100dvh" : "auto",
+      cardDisplay: full ? "flex" : "block",
+      cardOverflow: full ? "hidden" : "visible",
+      cardRadius: full ? "0px" : "14px",
+      cardJustify: full ? "center" : "flex-start",
+      stageHeight: wide ? "auto" : "340px",
+      stageMaxH: wide ? "46vh" : "none",
+      stageAspect: wide ? "16 / 9" : "auto",
+      stagePad: wide ? "0 16%" : "0",
+      controlsPad: wide ? "0 16%" : "0 6px",
+      bottomPad: wide ? "0 16%" : "0 4px",
+      metaPad: wide ? "0 16%" : "0 2px",
+      progressPad: wide ? "0 16%" : "0 2px",
+      expandColor: expanded ? "#1ed760" : "#b3b3b3",
+      shuffleColor: this.state.shuffleOn ? "#fff" : "#1ed760",
+      repeatColor: this.state.repeatOn ? "#fff" : "#1ed760",
+      trackFill: this.dragging ? "#1ed760" : "#fff",
+      knobScale: this.dragging ? 1.25 : 1,
+      lines,
+      playing,
+      paused: !playing,
+      liked,
+      notLiked: !liked,
+      onPlay: this.onPlay,
+      onLike: this.onLike,
+      onLyrics: this.onLyrics,
+      coverOpacity: revealed ? 0 : 1,
+      lyricsOpacity: revealed ? 1 : 0,
+      eqOpacity: playing ? 1 : 0,
+      listTransform: "translateY(" + (center - active * lineH) + "px)",
+      progressPct: (progress * 100).toFixed(2) + "%",
+      knobOpacity: (this.dragging || playing || elapsed > 0) ? 1 : 0,
+      curTime: this.fmt(elapsed / 1000),
+      durTime: this.fmt(this.total / 1000),
+      lyricsPillBg: revealed ? "#1ed760" : "transparent",
+      lyricsPillColor: revealed ? "#000" : "#b3b3b3",
+    };
+  }
+}
+</script>
+</body>
+</html>
