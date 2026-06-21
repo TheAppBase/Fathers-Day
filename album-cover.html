@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; }
+  #cover {
+    width: 1000px; height: 1000px; position: relative; overflow: hidden;
+    background: linear-gradient(145deg, #cf7b43 0%, #a8542b 48%, #6f3417 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Figtree', sans-serif;
+  }
+  #grain { position: absolute; inset: 0; opacity: 0.5; background-image: radial-gradient(rgba(0,0,0,0.18) 2.6px, transparent 2.6px); background-size: 36.46px 36.46px; }
+  #sun { width: 312px; height: 312px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #f7dca6, #e3a857 72%); box-shadow: 0 0 130px rgba(247,220,166,0.45); }
+  #title { margin-top: 73px; font-size: 34px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,243,228,0.85); font-weight: 700; text-align: center; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div id="cover">
+    <div id="grain"></div>
+    <div id="sun"></div>
+    <div id="title">Happy Fat her's Day</div>
+  </div>
+</body>
+</html>
